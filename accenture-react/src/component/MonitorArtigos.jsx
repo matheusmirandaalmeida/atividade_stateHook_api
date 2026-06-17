@@ -1,46 +1,40 @@
-export default function MonitorArtigos() {
-  // PASSO A: CONECTAR OS MOTORES REATIVOS
-  // [ESCREVA AQUI]: 1. Crie o useState da aba de navegação (Slide 17)
-  // [ESCREVA AQUI]: 2. Crie o useState de artigos (Slide 29)
-  // [ESCREVA AQUI]: 3. Crie o useState de carregando (Slide 29)
-  // [ESCREVA AQUI]: 4. Crie o useState de texto para o input controlado (Slide 14)
+import { useEffect, useState } from "react";
 
-  // PASSO B: ORQUESTRAÇÃO ASSÍNCRONA DA API (Slides 27, 28 e 29)
+export default function MonitorArtigos() {
+  const [aba, setAba] = useState('inicio'); 
+  const [artigos, setArtigos] = useState([]);
+  const [carregando, setCarregando] = useState(false);
+  const [novoTitulo, setNovoTitulo] = useState('');
+
   useEffect(() => {
     (async () => {
       try {
-        // [ESCREVA AQUI]: Ative o estado de carregamento para true
+        setCarregando(true);
         
-        // [ESCREVA AQUI]: Faça o fetch assíncrono para https://jsonplaceholder.typicode.com/posts
+        const resposta = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const dados = await resposta.json();
         
-        // [ESCREVA AQUI]: Converta a resposta obtida para JSON
-        
-        // [ESCREVA AQUI]: Guarde o array convertido no estado de artigos
-        
+        setArtigos(dados);
       } catch (err) {
         console.error("Erro ao sincronizar com a API externa", err);
       } finally {
-        // [ESCREVA AQUI]: Desative o estado de carregamento para false
-        
+        setCarregando(false);
       }
     })();
-  }, []); // Array vazio executa apenas no mount físico
+  }, []); 
 
-  // PASSO C: A REGRA DE OURO DA IMUTABILIDADE (Slides 12, 14 e 22)
   const salvarArtigo = (e) => {
-    // [ESCREVA AQUI]: Intercepte e evite o recarregamento padrão do formulário
+    e.preventDefault();
     
-    // if (!novoTitulo.trim()) return; // Descomente esta linha apos criar o estado do titulo
+    if (!novoTitulo.trim()) return; 
 
     const novoArtigoObj = {
       id: Date.now(),
-      // title: novoTitulo // Descomente esta linha apos criar o estado do titulo
+      title: novoTitulo 
     };
 
-    // [ESCREVA AQUI]: Atualize o estado de artigos inserindo o novo objeto no TOPO da lista via spread [...]
-    
-    // [ESCREVA AQUI]: Resete o estado do input para string vazia
-    
+    setArtigos([novoArtigoObj, ...artigos]);
+    setNovoTitulo('');
   };
 
   return (
@@ -52,48 +46,72 @@ export default function MonitorArtigos() {
             Accenture <span className="text-slate-500 font-normal text-xs">Blog</span>
           </h1>
           <nav className="flex gap-2">
-            {/* [ESCREVA AQUI]: Configure os botões onClick para mudar o estado 'aba' (Slide 17) */}
-            <button className="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+            <button 
+              onClick={() => setAba('inicio')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${aba === 'inicio' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
               Início
             </button>
-            <button className="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+            <button 
+              onClick={() => setAba('artigos')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${aba === 'artigos' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
               Artigos
             </button>
           </nav>
         </header>
 
-        {/* PASSO D: RENDERS CONDICIONAIS E ESTRUTURAS DE INTERFACE */}
-        
-        {/* [ESCREVA A CONDICIONAL DA TELA INICIAL AQUI] (Slide 17) */}
+        {aba === 'inicio' && (
           <div className="bg-slate-800/10 border border-slate-800 p-8 rounded-xl text-center shadow-md">
             <h2 className="text-base font-bold text-white">Revisão Editorial</h2>
             <p className="text-slate-400 text-xs mt-2 leading-relaxed">
               Alterne para a aba de artigos para carregar os fluxos de rede assíncronos.
             </p>
           </div>
+        )}
 
-        {/* [ESCREVA A CONDICIONAL DA TELA DE ARTIGOS AQUI] (Slide 17) */}
+        {aba === 'artigos' && (
           <div className="space-y-4">
             
-            {/* [ESCREVA O BLOCO DO FORMULÁRIO CONTROLADO AQUI associado a função salvarArtigo] (Slide 14) */}
+            <form onSubmit={salvarArtigo} className="flex gap-2">
+              <input 
+                type="text" 
+                value={novoTitulo}
+                onChange={(e) => setNovoTitulo(e.target.value)}
+                placeholder="Escreva o título do novo artigo..."
+                className="flex-1 bg-slate-800/40 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors"
+              />
+              <button 
+                type="submit"
+                className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                Publicar
+              </button>
+            </form>
 
             <div className="bg-slate-800/20 rounded-xl border border-slate-800/60 shadow-lg overflow-hidden">
               <div className="p-3 border-b border-slate-800 bg-slate-800/10 flex justify-between items-center">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Feed de Publicações</span>
               </div>
 
-              {/* [ESCREVA A CONDICIONAL DO LOADING AQUI] */}
+              {carregando && (
                 <div className="p-8 flex flex-col items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                   <p className="text-purple-400 text-[10px] font-mono animate-pulse">Sincronizando com a API...</p>
                 </div>
+              )}
 
-              {/* [ESCREVA A ITERAÇÃO MAP() COM A PROPRIEDADE KEY AQUI] (Slide 5) */}
+              {!carregando && (
+                <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/40">
+                  {artigos.slice(0,5).map((artigo) => (
+                    <div key={artigo.id} className="p-4 hover:bg-slate-800/30 transition-colors">
+                      <p className="text-sm text-slate-200">{artigo.title}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
               
             </div>
           </div>
+        )}
       </div>
     </div>
   );
-}
-
+  }
