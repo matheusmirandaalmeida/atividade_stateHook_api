@@ -100,7 +100,7 @@ export default function MonitorArtigos() {
 
               {!carregando && (
                 <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/40">
-                  {artigos.map((artigo) => (
+                  {artigos.slice(0,5).map((artigo) => (
                     <div key={artigo.id} className="p-4 hover:bg-slate-800/30 transition-colors">
                       <p className="text-sm text-slate-200">{artigo.title}</p>
                     </div>
