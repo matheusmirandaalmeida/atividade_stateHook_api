@@ -1,26 +1,28 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
+
 export default function MonitorArtigos() {
   // PASSO A: CONECTAR OS MOTORES REATIVOS
-  // [ESCREVA AQUI]: 1. Crie o useState da aba de navegação (Slide 17)
-  // [ESCREVA AQUI]: 2. Crie o useState de artigos (Slide 29)
-  // [ESCREVA AQUI]: 3. Crie o useState de carregando (Slide 29)
-  // [ESCREVA AQUI]: 4. Crie o useState de texto para o input controlado (Slide 14)
+  const [tab ,setTab] = useState("inicio")
+  const [article, setArticle] = useState([])
+  let [loading,setLoading] = useState(false)
+  const [title, setTitle] = useState("")
 
   // PASSO B: ORQUESTRAÇÃO ASSÍNCRONA DA API (Slides 27, 28 e 29)
   useEffect(() => {
     (async () => {
       try {
-        // [ESCREVA AQUI]: Ative o estado de carregamento para true
+        setLoading(true)
+        const response = await fetch("https://jsonplaceholder.typicode.com/posts")
+        const data = await response.json()
         
-        // [ESCREVA AQUI]: Faça o fetch assíncrono para https://jsonplaceholder.typicode.com/posts
-        
-        // [ESCREVA AQUI]: Converta a resposta obtida para JSON
-        
-        // [ESCREVA AQUI]: Guarde o array convertido no estado de artigos
+        setArticle(data)
         
       } catch (err) {
         console.error("Erro ao sincronizar com a API externa", err);
       } finally {
-        // [ESCREVA AQUI]: Desative o estado de carregamento para false
+        setLoading(false)
         
       }
     })();
@@ -29,17 +31,16 @@ export default function MonitorArtigos() {
   // PASSO C: A REGRA DE OURO DA IMUTABILIDADE (Slides 12, 14 e 22)
   const salvarArtigo = (e) => {
     // [ESCREVA AQUI]: Intercepte e evite o recarregamento padrão do formulário
-    
-    // if (!novoTitulo.trim()) return; // Descomente esta linha apos criar o estado do titulo
-
+    e.preventDefault()
+    if (!novoTitulo.trim()) return;
     const novoArtigoObj = {
       id: Date.now(),
-      // title: novoTitulo // Descomente esta linha apos criar o estado do titulo
+      title: novoTitulo  // Descomente esta linha apos criar o estado do titulo
+
     };
 
-    // [ESCREVA AQUI]: Atualize o estado de artigos inserindo o novo objeto no TOPO da lista via spread [...]
-    
-    // [ESCREVA AQUI]: Resete o estado do input para string vazia
+    setArticle([novoArtigoObj])    
+    setTitle('')
     
   };
 
